@@ -16,33 +16,44 @@ fn main() {
     // Parse
     let result = parse_sv(&path, &defines, &includes, false);
 
-    if let Ok((syntax_tree, _)) = result {
+    match result {
+        Ok((syntax_tree, _)) => {
+
+        //}
+    //}
+    //if let Ok((syntax_tree, _)) = result {
         // &SyntaxTree is iterable
-        for node in &syntax_tree {
-            // The type of each node is RefNode
-            match node {
-                RefNode::ModuleDeclarationNonansi(x) => {
-                    // unwrap_node! gets the nearest ModuleIdentifier from x
-                    let id = unwrap_node!(x, ModuleIdentifier).unwrap();
+            for node in &syntax_tree {
+                // The type of each node is RefNode
+                match node {
+                    RefNode::ModuleDeclarationNonansi(x) => {
+                        // unwrap_node! gets the nearest ModuleIdentifier from x
+                        let id = unwrap_node!(x, ModuleIdentifier).unwrap();
 
-                    let id = get_identifier(id).unwrap();
+                        let id = get_identifier(id).unwrap();
 
-                    // Original string can be got by SyntaxTree::get_str(self, locate: &Locate)
-                    let id = syntax_tree.get_str(&id).unwrap();
-                    println!("module: {}", id);
+                        // Original string can be got by SyntaxTree::get_str(self, locate: &Locate)
+                        let id = syntax_tree.get_str(&id).unwrap();
+                        println!("module: {}", id);
+                    }
+                    RefNode::ModuleDeclarationAnsi(x) => {
+                        let id = unwrap_node!(x, ModuleIdentifier).unwrap();
+                        let id = get_identifier(id).unwrap();
+                        let id = syntax_tree.get_str(&id).unwrap();
+                        println!("module: {}", id);
+                    }
+                    _ => (),
                 }
-                RefNode::ModuleDeclarationAnsi(x) => {
-                    let id = unwrap_node!(x, ModuleIdentifier).unwrap();
-                    let id = get_identifier(id).unwrap();
-                    let id = syntax_tree.get_str(&id).unwrap();
-                    println!("module: {}", id);
-                }
-                _ => (),
             }
+        },
+        Err(x) => {
+            println!("Error: {:?}", x);
         }
-    } else {
-        println!("Parse failed");
-    }
+        
+    } 
+    // else {
+    //     println!("Parse failed");
+    // }
 }
 
 fn get_identifier(node: RefNode) -> Option<Locate> {
