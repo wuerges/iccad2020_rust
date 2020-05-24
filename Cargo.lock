@@ -203,6 +203,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "rustick"
+version = "0.1.0"
+dependencies = [
+ "sv-parser 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
 name = "ryu"
 version = "1.0.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -346,13 +353,6 @@ dependencies = [
 name = "unicode-xid"
 version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-
-[[package]]
-name = "verilogparser"
-version = "0.1.0"
-dependencies = [
- "sv-parser 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)",
-]
 
 [[package]]
 name = "version_check"
