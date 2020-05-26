@@ -8,9 +8,9 @@ pub struct Ast {
 }
 
 pub enum Module {
-    Table(TableModule),
-    Comb(CombModule),
-    Syncr(SyncrModule)
+    Table(TableModule)//,
+    // Comb(CombModule),
+    // Syncr(SyncrModule)
 }
 
 

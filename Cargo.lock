@@ -206,6 +206,7 @@ dependencies = [
 name = "rustick"
 version = "0.1.0"
 dependencies = [
+ "nom 5.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "sv-parser 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 

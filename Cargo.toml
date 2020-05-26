@@ -8,3 +8,4 @@ edition = "2018"
 
 [dependencies]
 sv-parser = "0.7.0"
+nom = "5"
