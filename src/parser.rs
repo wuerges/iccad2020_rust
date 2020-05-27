@@ -34,7 +34,7 @@ named!(pub identifier<&[u8], String>,
 //     return identifier(input);
 // }
 
-named!(pub parser2<&str, Vec<&str> >, many1!( tag!( "a" ) ) );
+// named!(pub parse_file<&[u8]>, identifier );
 
 
 #[cfg(test)]
