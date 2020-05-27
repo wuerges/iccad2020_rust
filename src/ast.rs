@@ -3,10 +3,13 @@ pub enum Logic {
     Pos, Neg, X, Z
 }
 
+#[derive(Debug)]
 pub struct Ast {
     
 }
 
+
+#[derive(Debug)]
 pub enum Module {
     Table(TableModule)//,
     // Comb(CombModule),
@@ -14,12 +17,19 @@ pub enum Module {
 }
 
 
+#[derive(Debug)]
 pub struct TableModule {
-    name : String,
-    inputs : Vec<String>,
-    outputs : Vec<String>,
-    values : Vec<Vec<Logic>>
+    pub name : String,
+    pub output : String,
+    pub inputs : Vec<String>,
+    // outputs : Vec<String>,
+    // values : Vec<Vec<Logic>>
 }
+
+// impl TableModule {
+//     create::
+// }
+
 
 // pub struct CombModule {
 //     inputs : Vec<String>,
