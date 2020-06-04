@@ -19,8 +19,26 @@ named!(subsequent<char>, one_of!("0123456789"));
 // named!(special_initial<char>, one_of!("!$%&*/:<=>?^_~"));
 // named!(special_subsequent<char>, one_of!("+-.@"));
 
-// TODO add support for comments here
-named!(space<&[u8], ()>, do_parse!(many0!(complete!(one_of!(" \n\t"))) >> ()));
+named!(blanck<&[u8], ()>, 
+    do_parse!(many0!(one_of!(" \r\n\t")) >> ())
+);
+
+named!(endl<&[u8], ()>, 
+    do_parse!(tag!("\n") >> ())
+);
+
+named!(space<&[u8], ()>, 
+    do_parse!(
+        alt!(
+            blanck
+            | do_parse!(
+                tag!("//") >> 
+                many0!(none_of!("\n")) >> 
+                tag!("\n") >> 
+                blanck >> ())
+        )        
+    >> ())
+);
 
 named!(identifier<&[u8], String>,
     map!(
@@ -70,27 +88,63 @@ named!(udp<&[u8], TableModule>,
         inputs : many1!( preceded!(comma, terminated!(identifier, space))) >> 
         tag!(")")  >> space >>
         tag!(";") >> space >> 
+        many1!( udp_declaration ) >> 
         // tag!(")")  >> space >>
         (TableModule { name : name_of_udp, output : output, inputs : inputs })
     )
 );
-
-
-// <name_of_UDP>
-//    ::= <IDENTIFIER>
 
 // <UDP_declaration>
 //    ::= <UDP_output_declaration>
 //    ||= <reg_declaration>
 //    ||= <UDP_input_declaration>
 
+named!(udp_declaration<&[u8], ()>, 
+    do_parse!( 
+        alt!(output_declaration 
+            | reg_declaration 
+            | input_declaration)
+            >> ()        
+    )
+);
+
 // <UDP_output_declaration>
 //    ::= output <output_terminal _name>;
+
+named!(output_declaration<&[u8], ()>, 
+    do_parse!( 
+        tag!("output") >> space >> 
+        identifier >> space >>
+        tag!(";") >> space >> 
+        ()
+    )
+);
+
 // <reg_declaration>
 //    ::=   reg <output_terminal_name> ;
 
+named!(reg_declaration<&[u8], ()>, 
+    do_parse!( 
+        tag!("reg") >> space >> 
+        identifier >> space >>
+        tag!(";") >> space >> 
+        ()
+    )
+);
+
 // <UDP_input_declaration>
 //    ::= input <input_terminal_name> <,<input_terminal_name>>* ;
+
+named!(input_declaration<&[u8], ()>, 
+    do_parse!( 
+        tag!("input") >> space >> 
+        identifier >> space >>
+        many0!( do_parse!(comma >> identifier >> space >> ()))>> 
+        tag!(";") >> space >> 
+        ()
+    )
+);
+
 
 // <UDP_initial_statement>
 //    ::= initial <output_terminal_name> = <init_val> ;
