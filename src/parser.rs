@@ -19,9 +19,9 @@ named!(subsequent<char>, one_of!("0123456789"));
 // named!(special_initial<char>, one_of!("!$%&*/:<=>?^_~"));
 // named!(special_subsequent<char>, one_of!("+-.@"));
 
-named!(blanck<&[u8], ()>, 
-    do_parse!(many0!(one_of!(" \r\n\t")) >> ())
-);
+// named!(space<&[u8], ()>, 
+//     do_parse!(many0!(one_of!(" \r\n\t")) >> ())
+// );
 
 named!(endl<&[u8], ()>, 
     do_parse!(tag!("\n") >> ())
@@ -29,14 +29,13 @@ named!(endl<&[u8], ()>,
 
 named!(space<&[u8], ()>, 
     do_parse!(
-        alt!(
-            blanck
+        many0!(alt!(
+            do_parse!(one_of!("\r\n\t ") >> ())
             | do_parse!(
                 tag!("//") >> 
                 many0!(none_of!("\n")) >> 
-                tag!("\n") >> 
-                blanck >> ())
-        )        
+                tag!("\n") >> ())
+        ))  
     >> ())
 );
 
@@ -192,7 +191,7 @@ named!(edge<&[u8], Level>,
 );
 
 named!(table_def<&[u8], ()>,
-    do_parse!( tag!("table") >> 
+    do_parse!( tag!("table") >> space >>
         // alt!(many1!(combinational_entry)
         //     | many1!(sequential_entry))
             // >> 

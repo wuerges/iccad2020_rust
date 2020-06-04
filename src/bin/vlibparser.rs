@@ -29,7 +29,9 @@ fn main() -> io::Result<()> {
                 println!("Modules: {:?}", modules);
                 println!("Rem: {}", str::from_utf8(rem).unwrap());
             },
-            Err(r) => println!("Err!({:?})", r)
+            Err(e) => println!("Error: {:?}", e)
+                // println!("Kind => {:?}", kind);
+                // println!("Rem: {}", str::from_utf8(rem).unwrap());
         }
     }
 
