@@ -1,6 +1,11 @@
 #[derive(Debug)]
 pub enum Logic {
-    Pos, Neg, X, Z
+    Pos, Neg, X, Z, Unknown
+}
+
+pub enum Level {
+    Single(Logic),
+    Pair(Logic, Logic)
 }
 
 #[derive(Debug)]

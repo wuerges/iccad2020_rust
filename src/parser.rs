@@ -89,6 +89,7 @@ named!(udp<&[u8], TableModule>,
         tag!(")")  >> space >>
         tag!(";") >> space >> 
         many1!( udp_declaration ) >> 
+        table_def >> 
         // tag!(")")  >> space >>
         (TableModule { name : name_of_udp, output : output, inputs : inputs })
     )
@@ -160,13 +161,50 @@ named!(input_declaration<&[u8], ()>,
 //    ::= table
 //          <table_entries>
 //       endtable
-
 // <table_entries>
 //    ::= <combinational_entry>+
 //    ||= <sequential_entry>+
 
+named!(level_symbol<&[u8], Logic>,
+    alt!(
+        do_parse!(tag!("?") >> (Logic::Unknown))
+        | do_parse!(tag!("0") >> (Logic::Neg))
+        | do_parse!(tag!("1") >> (Logic::Pos))
+        | do_parse!(tag!("x") >> (Logic::X))
+        | do_parse!(tag!("X") >> (Logic::X))
+    )
+);
+
+named!(level<&[u8], Level>,
+    alt!( 
+        do_parse!( l : level_symbol >> (Level::Single(l)) )
+        | edge 
+    )
+);
+
+named!(edge<&[u8], Level>,
+    do_parse!(
+        tag!("(") >> 
+        a : level_symbol >> 
+        b : level_symbol >> tag!(")")
+        >> (Level::Pair(a, b))
+    )
+);
+
+named!(table_def<&[u8], ()>,
+    do_parse!( tag!("table") >> 
+        // alt!(many1!(combinational_entry)
+        //     | many1!(sequential_entry))
+            // >> 
+            ()
+    )
+);
+
+
 // <combinational_entry>
 //    ::= <level_input_list> : <OUTPUT_SYMBOL> ;
+
+
 
 // <sequential_entry>
 //    ::= <input_list> : <state> : <next_state> ;
