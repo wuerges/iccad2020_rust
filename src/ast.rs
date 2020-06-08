@@ -16,19 +16,9 @@ pub struct Ast {
 
 #[derive(Debug)]
 pub enum Module {
-    Table(TableModule)//,
+    Primitive(String)//,
     // Comb(CombModule),
     // Syncr(SyncrModule)
-}
-
-
-#[derive(Debug)]
-pub struct TableModule {
-    pub name : String,
-    pub output : String,
-    pub inputs : Vec<String>,
-    // outputs : Vec<String>,
-    // values : Vec<Vec<Logic>>
 }
 
 // impl TableModule {

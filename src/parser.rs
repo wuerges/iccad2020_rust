@@ -63,7 +63,7 @@ named!(pub vlib_file<&[u8], Vec<Module>>,
 
 named!(module<&[u8], Module>,
     map!(udp,
-        |x| Module::Table(x)
+        |x| Module::Primitive(x)
     )
 );
 
@@ -78,19 +78,15 @@ named!(module<&[u8], Module>,
 
 named!(comma<&[u8], ()>, do_parse!( tag!(",") >> space >> ()));
 
-named!(udp<&[u8], TableModule>, 
+named!(udp<&[u8], String>, 
     do_parse!( 
         tag!("primitive") >> space >> 
-        name_of_udp : terminated!(identifier, space) >>
-        tag!("(")  >> space >>
-        output : identifier >> space >> 
-        inputs : many1!( preceded!(comma, terminated!(identifier, space))) >> 
-        tag!(")")  >> space >>
-        tag!(";") >> space >> 
-        many1!( udp_declaration ) >> 
-        table_def >> 
+        name_of_udp : identifier >> 
+        take_until!("endprimitive") >> 
+        tag!("endprimitive")  >> space
+
         // tag!(")")  >> space >>
-        (TableModule { name : name_of_udp, output : output, inputs : inputs })
+        >> (name_of_udp)
     )
 );
 
