@@ -1,0 +1,45 @@
+Process:
+  outputs :: Signal
+  delay[i][o] :: Signal -> Signal -> Int[4]
+
+Signal:
+  value :: Logic
+  procs :: [(Act, Process)]
+
+Act:: // nao importa por enquanto
+
+
+dispatch {
+    while( D ) {
+        time, signal = D.pop()
+        old = signal.value
+
+        signal.value = signal.recalc(time) // Magica
+
+        for (a, p) : signal.procs {
+            if a(old, signal.value) {
+               Q.push(<time, p, signal>) 
+            }
+        }
+    }
+}
+
+do {
+    while( Q ) {
+        proc, time, input = Q.pop()
+        for o : proc.outputs {
+            D.push(<time + proc.delay[input][o], o>)
+        }
+    }
+}
+
+
+
+Q  = {
+    void push(t, v) {
+        if t < 100:
+           push(Q1, t, v)
+        else:
+           push(Q2, t, v)
+    }
+}
