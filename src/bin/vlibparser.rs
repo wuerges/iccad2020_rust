@@ -7,7 +7,6 @@ use std::io;
 use std::env;
 use std::fs::File;
 use crate::ast::*;
-use crate::parser::vlib_file;
 
 fn read_file(file_path: String) -> Result<String, ::std::io::Error> {
     let mut file = File::open(file_path)?;
@@ -24,15 +23,20 @@ fn main() -> io::Result<()> {
     for arg in tail {
         println!("parsing {}", arg);
         let s = read_file(arg.clone())?;
-        match vlib_file(s.as_bytes()) {
-            Ok((rem, modules)) => {
-                println!("Modules: {:?}", modules);
-                println!("Rem: {}", str::from_utf8(rem).unwrap());
-            },
-            Err(e) => println!("Error: {:?}", e)
-                // println!("Kind => {:?}", kind);
-                // println!("Rem: {}", str::from_utf8(rem).unwrap());
-        }
+        // let parse = vlib_file(s.as_bytes());
+        // println!("Result = {:?}", parse);
+        // match parse {
+        //     Ok((rem, modules)) => {
+        //         println!("Modules: {:?}", modules);
+        //         println!("Rem: {}", str::from_utf8(rem).unwrap());
+        //     },
+        //     Err(e) => println!("Error: {:?}", e)//,
+        //     // IResult::Incomplete(needed) => {
+        //         // println!("Needed {:?}",needed)
+        //     // }
+        //         // println!("Kind => {:?}", kind);
+        //         // println!("Rem: {}", str::from_utf8(rem).unwrap());
+        // }
     }
 
     Ok(())
