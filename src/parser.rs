@@ -3,7 +3,21 @@
 use crate::ast::*;
 
 use nom::{
-    character::complete::one_of,
+    character::complete::{
+        one_of, 
+        alpha1,
+        alphanumeric0,
+        multispace0,
+        line_ending,
+        not_line_ending,
+        anychar
+    },
+    bytes::complete::{tag, take_until},
+    combinator::{recognize, map, opt},
+    sequence::{pair, tuple},
+    branch::{alt, permutation},
+
+    multi::{many0, many1, many_till, separated_list},
     IResult
 //   bytes::complete::{tag, take_while_m_n},
 //   combinator::map_res, 
@@ -14,65 +28,66 @@ use nom::{
     // error::ErrorKind
 };
 
-
-fn initial(input: &str)  -> IResult<&str, char> {
-    one_of("abcdefghijklmnopqrstuvwxyz_")(input)
+fn initial(input: &str) -> IResult<&str, &str> {
+    // tag("_")(input)
+    alt((alpha1, tag("_")))(input)
 }
 
-// named!(initial<char>, one_of!("abcdefghijklmnopqrstuvwxyz_"));
+fn identifier(input: &str) -> IResult<&str, &str> {
+    recognize(pair(initial, alphanumeric0))(input)
+}
 
-
-// named!(subsequent<char>, one_of!("0123456789"));
 // // named!(special_initial<char>, one_of!("!$%&*/:<=>?^_~"));
 // // named!(special_subsequent<char>, one_of!("+-.@"));
 
-// // named!(space<&[u8], ()>, 
-// //     do_parse!(many0!(one_of!(" \r\n\t")) >> ())
-// // );
 
-// named!(endl<&[u8], ()>, 
-//     do_parse!(tag!("\n") >> ())
-// );
+fn comment(i: &str) -> IResult<&str, ()> {
+    map(
+        pair(tag("//"), many_till(anychar, line_ending)),
+        |_| ()
+    )(i)
+}
 
-// named!(space<&[u8], ()>, 
-//     do_parse!(
-//         many0!(alt!(
-//             do_parse!(one_of!("\r\n\t ") >> ())
-//             | do_parse!(
-//                 tag!("//") >> 
-//                 many0!(none_of!("\n")) >> 
-//                 tag!("\n") >> ())
-//         ))
-//     >> ())
-// );
+fn space(input: &str) -> IResult<&str, ()> {
+    // map(separated_list(comment, multispace0), |_| ())(input)
+    map(pair(many0(pair(multispace0, comment)), multispace0), |_| ())(input)
+    // let ms0 = map(multispace0, |_| ());
+    // map(many0(alt((ms0, comment))), |_| ())(input)
+}
 
-// named!(identifier<&[u8], String>,
-//     map!(
-//         recognize!(
-//             do_parse!( initial >> many0!(alt!(initial | subsequent)) >> ())
-//         )
-//         ,
-//         |s| String::from_utf8_lossy(s).into_owned()
-//     )
-// );
+fn endl(input: &str) -> IResult<&str, ()> {
+    map(line_ending, |_| ())(input)
+}
 
-// named!(timescale<&[u8], ()>,
-//     do_parse!( tag!("`timescale") >> space >>  tag!("1ps/1ps") >> space >>  ())
-// );
+fn timescale(i: &str) -> IResult<&str, ()> {
+    map(
+        tuple(
+            (tag("`timescale"), 
+            space, 
+            tag("1ps/1ps"), 
+            space)
+        ), |_| ())(i)
+}
 
-// named!(pub vlib_file<&[u8], Vec<Module>>,
-//     do_parse!( 
-//         timescale >> 
-//         mods: many1!(module) >> 
-//         (mods)
-//     )
-// );
+fn vlib_file(i: &str) -> IResult<&str, Vec<Module>> {
+    map(pair(timescale, many1(module)), |(_, b)| b)(i)
+}
 
-// named!(module<&[u8], Module>,
-//     map!(udp,
-//         |x| Module::Primitive(x)
-//     )
-// );
+fn module(i: &str) -> IResult<&str, Module> {
+    map(udp, |x| Module::Primitive(x.to_owned()))(i)
+}
+
+fn comma(i: &str) -> IResult<&str, ()> {
+    map(pair(tag(","), space), |_| ())(i)
+}
+
+fn udp(i :&str) -> IResult<&str, &str> {
+    map(tuple((
+        tag("primitive"), space, 
+        identifier, take_until("endprimitive"), space,
+        tag("endprimitive"), space
+    )), |(_,_, x,_, _, _, _)| x)(i)
+}
 
 // // <UDP>
 // //    ::= primitive <name_of_UDP> ( <output_terminal_name>,
@@ -253,14 +268,21 @@ mod tests {
     
     #[test] 
     fn test_identifier() {
-        // println!("ident={:?}", identifier(b"aaaa"));
-        // assert_eq!(identifier(b"aaaa"), Ok((&[][..], "aaaa".to_owned())));
+        assert_eq!(identifier("aaaa"), Ok(("", "aaaa")));
+        assert_eq!(identifier("aaa a"), Ok((" a", "aaa")));
+        assert_eq!(identifier("_aaa a"), Ok((" a", "_aaa")));
     }
 
     #[test]
-    fn test_initial() {
-        assert_eq!(initial("a"), Ok(("", 'a')));
-        assert_eq!(initial("abc"), Ok(("bc", 'a')));
+    fn test_comment() {
+        assert_eq!(comment("// hello\nworld"), Ok(("world", ())));
+        assert_eq!(comment("// hello\n \n world"), Ok((" \n world", ())));
+    }
+
+    #[test]
+    fn test_space() {
+        assert_eq!(space(" // hello\n    world"), Ok(("world", ())));
+        assert_eq!(space("// hello\n \n world"), Ok(("world", ())));
     }
 
     // #[test]
