@@ -7,6 +7,7 @@ use std::io;
 use std::env;
 use std::fs::File;
 use crate::ast::*;
+use crate::parser::vlib_file;
 
 fn read_file(file_path: String) -> Result<String, ::std::io::Error> {
     let mut file = File::open(file_path)?;
@@ -23,8 +24,8 @@ fn main() -> io::Result<()> {
     for arg in tail {
         println!("parsing {}", arg);
         let s = read_file(arg.clone())?;
-        // let parse = vlib_file(s.as_bytes());
-        // println!("Result = {:?}", parse);
+        let parse = vlib_file(s.as_str());
+        println!("Result = {:?}", parse);
         // match parse {
         //     Ok((rem, modules)) => {
         //         println!("Modules: {:?}", modules);

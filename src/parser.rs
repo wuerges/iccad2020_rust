@@ -69,7 +69,7 @@ fn timescale(i: &str) -> IResult<&str, ()> {
         ), |_| ())(i)
 }
 
-fn vlib_file(i: &str) -> IResult<&str, Vec<Module>> {
+pub fn vlib_file(i: &str) -> IResult<&str, Vec<Module>> {
     map(pair(timescale, many1(module)), |(_, b)| b)(i)
 }
 
@@ -81,6 +81,20 @@ fn comma(i: &str) -> IResult<&str, ()> {
     map(pair(tag(","), space), |_| ())(i)
 }
 
+// <UDP>
+//    ::= primitive <name_of_UDP> ( <output_terminal_name>,
+//       <input_terminal_name> <,<input_terminal_name>>* ) ;
+//    <UDP_declaration>+
+//    <UDP_initial_statement>?
+//    <table_definition>
+//    endprimitive
+// <UDP_declaration>
+//    ::= <UDP_output_declaration>
+//    ||= <reg_declaration>
+//    ||= <UDP_input_declaration>
+// <UDP_output_declaration>
+//    ::= output <output_terminal _name>;
+
 fn udp(i :&str) -> IResult<&str, &str> {
     map(tuple((
         tag("primitive"), space, 
@@ -88,34 +102,6 @@ fn udp(i :&str) -> IResult<&str, &str> {
         tag("endprimitive"), space
     )), |(_,_, x,_, _, _, _)| x)(i)
 }
-
-// // <UDP>
-// //    ::= primitive <name_of_UDP> ( <output_terminal_name>,
-// //       <input_terminal_name> <,<input_terminal_name>>* ) ;
-// //    <UDP_declaration>+
-// //    <UDP_initial_statement>?
-// //    <table_definition>
-// //    endprimitive
-
-
-// named!(comma<&[u8], ()>, do_parse!( tag!(",") >> space >> ()));
-
-// named!(udp<&[u8], String>, 
-//     do_parse!( 
-//         tag!("primitive") >> space >> 
-//         name_of_udp : identifier >> 
-//         take_until!("endprimitive") >> 
-//         tag!("endprimitive")  >> space
-
-//         // tag!(")")  >> space >>
-//         >> (name_of_udp)
-//     )
-// );
-
-// // <UDP_declaration>
-// //    ::= <UDP_output_declaration>
-// //    ||= <reg_declaration>
-// //    ||= <UDP_input_declaration>
 
 // named!(udp_declaration<&[u8], ()>, 
 //     do_parse!( 
@@ -126,8 +112,6 @@ fn udp(i :&str) -> IResult<&str, &str> {
 //     )
 // );
 
-// // <UDP_output_declaration>
-// //    ::= output <output_terminal _name>;
 
 // named!(output_declaration<&[u8], ()>, 
 //     do_parse!( 
@@ -138,8 +122,8 @@ fn udp(i :&str) -> IResult<&str, &str> {
 //     )
 // );
 
-// // <reg_declaration>
-// //    ::=   reg <output_terminal_name> ;
+// <reg_declaration>
+//    ::=   reg <output_terminal_name> ;
 
 // named!(reg_declaration<&[u8], ()>, 
 //     do_parse!( 
@@ -150,8 +134,8 @@ fn udp(i :&str) -> IResult<&str, &str> {
 //     )
 // );
 
-// // <UDP_input_declaration>
-// //    ::= input <input_terminal_name> <,<input_terminal_name>>* ;
+// <UDP_input_declaration>
+//    ::= input <input_terminal_name> <,<input_terminal_name>>* ;
 
 // named!(input_declaration<&[u8], ()>, 
 //     do_parse!( 
@@ -253,7 +237,6 @@ fn udp(i :&str) -> IResult<&str, &str> {
 // // }
 
 // // named!(pub parse_file<&[u8]>, identifier );
-
 
 #[cfg(test)]
 mod tests {
