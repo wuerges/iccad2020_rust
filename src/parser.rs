@@ -2,6 +2,8 @@
 
 use crate::ast::*;
 
+use std::str::from_utf8;
+
 use nom::{
     character::complete::{
         one_of, 
@@ -12,7 +14,8 @@ use nom::{
         not_line_ending,
         anychar
     },
-    bytes::complete::{tag, take_until},
+    character::{is_alphanumeric, is_alphabetic},
+    bytes::complete::{tag, take_until, take_while1, take_while},
     combinator::{recognize, map, opt},
     sequence::{pair, tuple},
     branch::{alt, permutation},
@@ -28,13 +31,23 @@ use nom::{
     // error::ErrorKind
 };
 
+fn is_initial(c :char) -> bool {
+    c.is_alphabetic() || c == '_'
+}
+fn is_sequential(c :char) -> bool {
+    c.is_alphanumeric() || c == '_'
+}
+
 fn initial(input: &str) -> IResult<&str, &str> {
-    // tag("_")(input)
-    alt((alpha1, tag("_")))(input)
+    take_while1(is_initial)(input)
+}
+
+fn subsequent(i: &str) -> IResult<&str, &str> {
+    take_while(is_sequential)(i)
 }
 
 fn identifier(input: &str) -> IResult<&str, &str> {
-    recognize(pair(initial, alphanumeric0))(input)
+    recognize(pair(initial, subsequent))(input)
 }
 
 // // named!(special_initial<char>, one_of!("!$%&*/:<=>?^_~"));
@@ -254,6 +267,7 @@ mod tests {
         assert_eq!(identifier("aaaa"), Ok(("", "aaaa")));
         assert_eq!(identifier("aaa a"), Ok((" a", "aaa")));
         assert_eq!(identifier("_aaa a"), Ok((" a", "_aaa")));
+        assert_eq!(identifier("udp_dff"), Ok(("", "udp_dff")));
     }
 
     #[test]
