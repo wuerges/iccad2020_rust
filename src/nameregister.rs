@@ -25,4 +25,8 @@ impl NameRegister {
     pub fn resolve(&self, number:usize) -> String {
         self.names[&number].clone()
     }
+
+    pub fn registered(&self, name:String) -> bool {
+        return self.rev_names.contains_key(&name)
+    }
 }

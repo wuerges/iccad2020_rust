@@ -15,7 +15,7 @@ impl Graph {
         Graph { adj : Vec::new() }
     }
 
-    pub fn new_vertex(&mut self) -> usize {
+    pub fn create_vertex(&mut self) -> usize {
         let r = self.adj.len();
         self.adj.push(Vec::new());
         r
@@ -29,8 +29,8 @@ mod tests {
     #[test] 
     fn it_works() {
         let mut g = Graph::new();
-        let u = g.new_vertex();
-        let v = g.new_vertex();
+        let u = g.create_vertex();
+        let v = g.create_vertex();
         g.add_edge(u, v, true);
     }
 }
